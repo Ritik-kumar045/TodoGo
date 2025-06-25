@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Go To-Do</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 30px;
+      background: #f0f4f8;
+    }
+    h1 {
+      text-align: center;
+      color: #333;
+    }
+    form {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+    input[type="text"] {
+      padding: 10px;
+      width: 300px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+    }
+    button {
+      padding: 10px 15px;
+      border: none;
+      background-color: #007bff;
+      color: white;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #0056b3;
+    }
+    ul {
+      list-style: none;
+      padding: 0;
+      max-width: 600px;
+      margin: auto;
+    }
+    li {
+      background: white;
+      padding: 15px;
+      border-radius: 5px;
+      margin-bottom: 10px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    }
+    .task-info {
+      display: flex;
+      flex-direction: column;
+    }
+    .task-status {
+      font-size: 18px;
+    }
+    .timer {
+      font-size: 12px;
+      color: gray;
+    }
+    .done {
+      color: green;
+    }
+    .not-done {
+      color: red;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>My To-Do List ⏳</h1>
+
+  <form action="/add" method="POST">
+    <input type="text" name="task" placeholder="Enter your task" required>
+    <button type="submit">Add Task</button>
+  </form>
+
+  <ul>
+    {{range $i, $t := .tasks}}
+      <li>
+        <div class="task-info">
+          <span class="task-status">
+            {{if $t.Done}}
+              <span class="done">✅ {{$t.Name}}</span>
+            {{else}}
+              <span class="not-done">❌ {{$t.Name}}</span>
+            {{end}}
+          </span>
+          <span class="timer" id="timer{{$i}}"></span>
+        </div>
+        {{if not $t.Done}}
+          <form action="/done/{{$i}}" method="POST">
+            <button type="submit">Mark Done</button>
+          </form>
+        {{end}}
+      </li>
+    {{end}}
+  </ul>
+
+  <script>
+    // Simulate timers for demonstration
+    // In real app, startTime and endTime should come from backend
+    const startTimes = {};
+
+    document.querySelectorAll('li').forEach((li, index) => {
+      const isDone = li.innerHTML.includes('✅');
+      const timerSpan = document.getElementById(`timer${index}`);
+      if (!isDone) {
+        // Start timer
+        let seconds = 0;
+        startTimes[index] = setInterval(() => {
+          seconds++;
+          const hrs = String(Math.floor(seconds / 3600)).padStart(2, '0');
+          const mins = String(Math.floor((seconds % 3600) / 60)).padStart(2, '0');
+          const secs = String(seconds % 60).padStart(2, '0');
+          timerSpan.textContent = `🕒 Time: ${hrs}:${mins}:${secs}`;
+        }, 1000);
+      } else {
+        timerSpan.textContent = `✔️ Completed`;
+      }
+    });
+  </script>
+
+</body>
+</html>
